@@ -1,0 +1,117 @@
+If the cube is not rendering in the scene, there are several potential issues you might need to check. Here’s a step-by-step troubleshooting guide to help you resolve the problem:
+
+### 1. **Check Scene and Camera Setup**
+   - **Camera Position**: Ensure the camera is positioned correctly to view the cube. If the cube is too far away or too close, it may not be visible. Since you have `camera.position.z = 5`, this should generally be fine, but ensure the cube is within this view range.
+   - **Cube Position**: Verify the cube is positioned within the camera's view. By default, the cube is centered at the origin `(0, 0, 0)`, so it should be visible.
+
+### 2. **Verify Cube Creation**
+   - **Geometry and Material**: Ensure that both `THREE.BoxGeometry` and `THREE.MeshBasicMaterial` are correctly instantiated and passed to the `THREE.Mesh`. 
+
+```javascript
+const geometry = new THREE.BoxGeometry();
+const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+```
+
+### 3. **Check Renderer and Scene**
+   - **Renderer Setup**: Ensure the renderer is properly added to the DOM and its size is set correctly.
+
+```javascript
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+```
+
+   - **Rendering**: Confirm that `renderer.render(scene, camera)` is being called in the animation loop.
+
+```javascript
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update(); // Update controls
+    renderer.render(scene, camera);
+}
+animate();
+```
+
+### 4. **Inspect Lighting**
+   - **Lighting Configuration**: Even though `THREE.MeshBasicMaterial` is not affected by lights, it’s a good idea to ensure the scene is correctly illuminated if you switch to materials that require lighting.
+
+```javascript
+const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
+scene.add(ambientLight);
+```
+
+### 5. **Check for Errors in Console**
+   - Open the browser’s developer tools (usually `F12` or `Ctrl+Shift+I`) and check the console for any error messages that might indicate what went wrong. Look for issues related to Three.js or WebGL.
+
+### 6. **Verify the Rendering Loop**
+   - Ensure the `animate` function is continuously calling `requestAnimationFrame` and `renderer.render`.
+
+### 7. **Ensure All Libraries are Loaded**
+   - Confirm that the Three.js and OrbitControls scripts are correctly loaded. Sometimes issues can arise from loading old or incompatible versions.
+
+### 8. **Check for Overlapping Elements**
+   - Ensure there are no other elements overlapping the canvas or affecting its display.
+
+### Example Check
+Here’s an example of a complete setup with minimal but sufficient code to ensure the cube renders correctly:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Cube Example</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.js"></script>
+    <script>
+        // Create Scene, Camera, Renderer
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Orbit Controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.25;
+        controls.enableZoom = true;
+
+        // Create a Cube
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // Position Camera
+        camera.position.z = 5;
+
+        // Handle Window Resize
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update(); // Update controls
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
+```
+
+If the cube is still not rendering, double-check each step and ensure that all parts are correctly set up.
